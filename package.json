@@ -1,0 +1,30 @@
+{
+  "name": "mal-what-to-watch",
+  "productName": "MAL: What to Watch",
+  "version": "0.1.0",
+  "description": "Compare friends mal pages",
+  "main": "src/main/app-main.js",
+  "scripts": {
+    "start": "electron-forge start"
+  },
+  "repository": "https://github.com/Greywhale/mal-what-to-watch",
+  "keywords": [
+    "MAL",
+    "what to watch"
+  ],
+  "author": "Greywhale",
+  "license": "CC0-1.0",
+  "config": {
+    "forge": "./forge.config.js"
+  },
+  "devDependencies": {
+    "electron-prebuilt-compile":"1.8.1",
+    "electron": "~1.7.8",
+    "electron-forge":"4.1.2",
+    "eslint": "^4.10.0",
+    "eslint-plugin-react": "^7.4.0",
+    "react": "16.0.0",
+    "react-dom": "16.0.0",
+    "react-hot-loader":"3.1.1"
+  }
+}

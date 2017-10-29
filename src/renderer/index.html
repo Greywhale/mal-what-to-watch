@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <div id="root" />
+    <script>
+      const React = require('react');
+      const ReactDom = require('react-dom');
+      const { AppContainer } = require('react-hot-loader');
+      import AppMainWindow from './app-main-window.jsx';
+
+      const render = Component => {
+        ReactDom.render(
+          <AppContainer>
+            <AppMainWindow />
+          </AppContainer>,
+          document.getElementById('root'),
+        )
+      }
+
+      render();
+
+      if(module.hot) {
+        module.hot.accept('', () => {render()})
+      }
+    </script>
+  </body>
+</html>
