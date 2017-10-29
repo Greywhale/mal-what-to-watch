@@ -16,12 +16,12 @@ export default class AppMainWindow extends React.Component {
     for(let i = 0; i < userNamesInput.length; i +=1){
       inputValues.push(userNamesInput[i].value);
     }
-    console.log(inputValues);
+    ipcRenderer.send('input-msg', inputValues);
   }
 
   render() {
     let inputMap = [];
-    for(let i = 0; i < 4; i += 1) {
+    for(let i = 0; i < 2; i += 1) {
       inputMap.push(
         <ul>
           <input />

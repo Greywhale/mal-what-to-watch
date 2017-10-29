@@ -1,12 +1,40 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 const path = require('path');
 const url = require('url');
-
+//const request = require('request');
+//const rp = require('request-promise');
+const Promise = require('bluebird');
+const request = Promise.promisifyAll(require('request'));
+const {parseString} = require('xml2js');
+const _ = require('lodash');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let userList = {};
 
+function parseAnimeJSON(allAnime) {
+  const sortedAnime = {};
+
+  const statusWatching = '1';
+  const statusComplete = '2';
+  const statusOnHold = '3';
+  const statusDropped = '4';
+  const statusPlan = '6';
+
+  const animeWatching = _.filter(allAnime, {'my_status': [statusWatching]});
+  const animeComplete = _.filter(allAnime, {'my_status': [statusComplete]});
+  const animeOnHold = _.filter(allAnime, {'my_status': [statusOnHold]});
+  const animeDropped = _.filter(allAnime, {'my_status': [statusDropped]});
+  const animePlan = _.filter(allAnime, {'my_status': [statusPlan]});
+
+  sortedAnime['watching'] = animeWatching;
+  sortedAnime['complete'] = animeComplete;
+  sortedAnime['onHold'] = animeOnHold;
+  sortedAnime['dropped'] = animeDropped;
+  sortedAnime['plan'] = animePlan;
+  return sortedAnime;
+}
 function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 800, height: 600});
@@ -27,6 +55,26 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
+  });
+
+  ipcMain.on('input-msg', function(event, inputValues) {
+    const requests = inputValues.map(userName => {
+      const callPath = 'http://myanimelist.net/malappinfo.php?u='+userName+'&status=all&type=anime';
+      const options = {
+        uri: callPath,
+      };
+      return request.getAsync(options);
+    });
+
+    Promise.all(requests).then(responses => {
+      for(let i = 0; i < responses.length; i++) {
+        const content = responses[i].body;
+        parseString(content, function (err, result) {
+          const sortedAnime = parseAnimeJSON(result['myanimelist'].anime);
+          userList[inputValues[i]] = sortedAnime;
+        });
+      }
+    });
   });
 }
 
@@ -51,6 +99,3 @@ app.on('activate', function () {
     createWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
