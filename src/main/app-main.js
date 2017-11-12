@@ -29,11 +29,49 @@ function parseAnimeJSON(allAnime) {
   const animePlan = _.filter(allAnime, {'my_status': [statusPlan]});
 
   sortedAnime['watching'] = animeWatching;
-  sortedAnime['complete'] = animeComplete;
+  sortedAnime['completed'] = animeComplete;
   sortedAnime['onHold'] = animeOnHold;
   sortedAnime['dropped'] = animeDropped;
   sortedAnime['plan'] = animePlan;
   return sortedAnime;
+}
+
+function createPlanList() {
+  const planList = {};
+  const theRestList = {};
+  const users = Object.keys(userList);
+
+  //agregate planned to watch anime
+  for(let i = 0; i < users.length; i++) {
+    const userPlanAnime = userList[users[i]].plan;
+    for(let j = 0; j < userPlanAnime.length; j++) {
+      planList[userPlanAnime[j].series_title] = userPlanAnime[j].series_image;
+    }
+  }
+
+  //agregate the rest
+  for(let i = 0; i < users.length; i++) {
+    const keyArray = ['watching', 'completed', 'onHold', 'dropped'];
+    for(let j = 0; j < keyArray.length; j++) {
+      const inspectUser = userList[users[i]];
+      const inspectList = inspectUser[keyArray[j]];
+      for(let k = 0; k < inspectList.length; k++) {
+        const animeInfo = inspectList[k];
+        theRestList[animeInfo.series_title] = animeInfo.series_image;
+      }
+    }
+  }
+
+  const plannedAnimeKeys =  Object.keys(planList);
+  const finalPlanList = {};
+  for(let i = 0; i < plannedAnimeKeys.length; i++) {
+    const iterateKey = plannedAnimeKeys[i];
+    if (theRestList[iterateKey]  === undefined) {
+      console.log(iterateKey);
+      finalPlanList[iterateKey] = planList[iterateKey];
+    }
+  }
+  return finalPlanList;
 }
 function createWindow () {
   // Create the browser window.
@@ -74,6 +112,8 @@ function createWindow () {
           userList[inputValues[i]] = sortedAnime;
         });
       }
+      const planList = createPlanList();
+      event.sender.send('returnPlanList', planList);
     });
   });
 }

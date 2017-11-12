@@ -8,6 +8,9 @@ export default class AppMainWindow extends React.Component {
   constructor(props) {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
+    ipcRenderer.on('returnPlanList', (event, planList) => {
+      console.log(planList);
+    });
   }
 
   onSubmit() {
@@ -21,7 +24,7 @@ export default class AppMainWindow extends React.Component {
 
   render() {
     let inputMap = [];
-    for(let i = 0; i < 2; i += 1) {
+    for(let i = 0; i < 4; i += 1) {
       inputMap.push(
         <ul>
           <input />
